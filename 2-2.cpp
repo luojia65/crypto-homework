@@ -194,12 +194,12 @@ int main() {
 			int k=(i<<16) | (kkl2<<12) | (kkl1<<8) | (kkm2<<4) | kkm1;
 			// printf("%x\n",k);
 			int ff=1;
-			FOR(j,1,4) {
+			FOR(j,1,10) {
 				int yy=spn(X[j],k);
 				// printf("%x\n",yy);
 				if(yy!=Y[j]) {
 					ff=0;
-					continue;
+					break;
 				}
 			}
 			if(ff) {
