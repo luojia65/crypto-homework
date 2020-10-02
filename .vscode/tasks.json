@@ -1,0 +1,31 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "C/C++: g++.exe build active file",
+            "command": "D:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\g++.exe",
+            "args": [
+                "-g",
+                "-m64",
+                "${file}",
+                "${fileDirname}\\..\\openssl\\bin\\libssl.a",
+                "${fileDirname}\\..\\openssl\\bin\\libcrypto.a",
+                "-o",
+                "${fileDirname}\\${fileBasenameNoExtension}.exe",
+                "-ID:\\msys64\\usr\\local\\include",
+                "-lws2_32"
+
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build"
+        }
+    ]
+}
