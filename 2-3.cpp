@@ -118,8 +118,10 @@ int main()
 		{
 			count[i] = abs(count[i] - 4000);
 		}
+		int cc=0;
 		while (1)
-		{
+		{	
+			// printf("times = %d\n", ++cc);
 			int count0[256] = { 0 };
 			max = -1;
 			for (int m = 0; m < 256; m++)
@@ -130,6 +132,7 @@ int main()
 					x = (m & 0x00f0) >> 4; y = m & 0x0f;
 				}
 			}
+			// printf("x=%d, y=%d\n",x,y);
 			K[5] = x;
 			K[7] = y;
 			count[(K[5] << 4) + K[7]] = 0;
@@ -155,7 +158,7 @@ int main()
                         // if(o==9)printf("l=%d, m=%d, d=%d\n",K[4], K[6], (bin ^ u_bin[1] ^ u_bin[3] ^ u_bin[5] ^ u_bin[7] ^ u_bin[9] ^ u_bin[11]));
 						if ((bin ^ u_bin[1] ^ u_bin[3] ^ u_bin[5] ^ u_bin[7] ^ u_bin[9] ^ u_bin[11]) == 0)
 						{
-                            printf("%d %d %d\n",o+1,K[4],K[6]);
+                            // printf("%d %d %d\n",o+1,K[4],K[6]);
 							count0[(K[4] << 4) + K[6]]++;
 						}
 					}

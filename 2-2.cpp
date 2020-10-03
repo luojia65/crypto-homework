@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h> 
-#include <vector>
-#include <algorithm>
+// #include <vector>
+// #include <algorithm>
 #define FOR(x,f,t) for(x=f;x<=t;++x)
 #define RFOR(x,f,t) for(x=f;x>=t;--x)
 #define MEMSET(a,b) memset(a,b,sizeof(a))
@@ -23,6 +23,14 @@ inline void print16(int a) {
 	int i;
 	FOR(i,1,4) {
 		int c=(a>>(4*(4-i)))&0xF;
+		if(c>=0&&c<=9) putchar('0'+c);
+		else if (c>=10&&c<=15) putchar('a'+c-10);
+	}
+}
+inline void print32(int a) {
+	int i;
+	FOR(i,1,8) {
+		int c=(a>>(4*(8-i)))&0xF;
 		if(c>=0&&c<=9) putchar('0'+c);
 		else if (c>=10&&c<=15) putchar('a'+c-10);
 	}
@@ -101,6 +109,7 @@ bool my_cmp(const Z&a, const Z&b) {
 }
 #define T 8000
 #define x(i) ((X[i]>>(16-i))&0x1)
+
 int main() {
 	// freopen("2.in","r",stdin); 
 	int ii,i,j,l,m,N; scanf("%d",&N);
@@ -131,91 +140,110 @@ int main() {
 				}
 			}
 		}
-		int mx=-1,kkl1=0,kkm1=0; //kkl1->2 kkm1->4 
+// 		int mx=-1,kkl1=0,kkm1=0; //kkl1->2 kkm1->4 
 		FOR(l,0,15) FOR(m,0,15) {
 			cnt[l][m]=abs(cnt[l][m]-T/2);
-//				printf("l=%d, m=%d, cnt=%d\n",l,m,cnt[l][m]); 
-			if(cnt[l][m]>mx) {
-				mx=cnt[l][m];
-				kkl1=l,kkm1=m;
-			}
+// //				printf("l=%d, m=%d, cnt=%d\n",l,m,cnt[l][m]); 
+// 			if(cnt[l][m]>mx) {
+// 				mx=cnt[l][m];
+// 				kkl1=l,kkm1=m;
+// 			}
 		}
-		// printf("kkl1=%d kkm1=%d\n",kkl1,kkm1);
-		// MEMCPY(cnt2,cnt);
-		MEMSET(cnt, 0);
-		// cnt[l][m]=0;
-		FOR(i,1,8000){
-			int y1=(Y[i]>>12)&0xF,y2=(Y[i]>>8)&0xF,y3=(Y[i]>>4)&0xF;
-			// int y4=Y[i]&0xF;
-			int u42=pis2(kkl1^y2);
-			int u4b6=(u42>>2)&0x1,u4b8=u42&0x1;
-			int x5=(X[i]>>(16-5))&0x1;
-			int x6=(X[i]>>(16-6))&0x1;
-			FOR(l,0,15) {
-				int v41=l^y1;
-				int u41=pis2(v41);
-				int u4b2=((u41>>2)&0x1),u4b4=u41&0x1;
-				FOR(m,0,15) {
-					int v43=m^y3;
-					int u43=pis2(v43);
-					int u4b10=(u43>>2)&0x1,u4b12=u43&0x1;
-					int z=x5^x6^ /*5,6*/
-					/* 2,4,6,8,10,12*/
-						u4b2^u4b4^u4b6^u4b8^u4b10^u4b12;
-					// if(i==10)printf("l=%d, m=%d, d=%d\n",l,m,z);
-					if (z==0) {
-						// printf("%d %d %d\n",i,l,m);
-						cnt[l][m]+=1;
+		// std::vector<Z> vy;
+		// FOR(l,0,15) FOR(m,0,15) 
+		// 	vy.push_back((Z) { l, m, cnt[l][m] });
+		// std::sort(vy.begin(), vy.end(), my_cmp);
+		// FOR(i,0,2) printf("i=%d x=%d, y=%d\n",i,vy[i].l,vy[i].m);
+		int g;
+		FOR(g,0,9) {
+			int kkl1,kkm1;
+			int mx1=-1;
+			FOR(l,0,15) FOR(m,0,15) {
+				if(cnt[l][m]>mx1) {
+					mx1=cnt[l][m];
+					kkl1=l,kkm1=m;
+				}
+			}
+			// printf("kkl1=%d kkm1=%d\n",kkl1,kkm1);
+			// MEMCPY(cnt2,cnt);
+			MEMSET(cnt2, 0);
+			// cnt[l][m]=0;
+			FOR(i,1,8000){
+				int y1=(Y[i]>>12)&0xF,y2=(Y[i]>>8)&0xF,y3=(Y[i]>>4)&0xF;
+				// int y4=Y[i]&0xF;
+				int u42=pis2(kkl1^y2);
+				int u4b6=(u42>>2)&0x1,u4b8=u42&0x1;
+				int x5=(X[i]>>(16-5))&0x1;
+				int x6=(X[i]>>(16-6))&0x1;
+				FOR(l,0,15) {
+					int v41=l^y1;
+					int u41=pis2(v41);
+					int u4b2=((u41>>2)&0x1),u4b4=u41&0x1;
+					FOR(m,0,15) {
+						int v43=m^y3;
+						int u43=pis2(v43);
+						int u4b10=(u43>>2)&0x1,u4b12=u43&0x1;
+						int z=x5^x6^ /*5,6*/
+						/* 2,4,6,8,10,12*/
+							u4b2^u4b4^u4b6^u4b8^u4b10^u4b12;
+						// if(i==10)printf("l=%d, m=%d, d=%d\n",l,m,z);
+						if (z==0) {
+							// printf("%d %d %d\n",i,l,m);
+							cnt2[l][m]+=1;
+						}
 					}
 				}
 			}
-		}
-		FOR(l,0,15) FOR(m,0,15) {
-			cnt[l][m]=abs(cnt[l][m]-T/2);
-		}
-		// std::vector<Z> vz;
-		// FOR(l,0,15) FOR(m,0,15) 
-		// 	vz.push_back((Z) { l, m, cnt[l][m] });
-		// std::sort(vz.begin(), vz.end(), my_cmp);
-		// FOR(i,0,100) printf("l=%d, m=%d, c=%d\n",vz[i].l,vz[i].m,vz[i].c);
-		
-		mx=-1;int kkl2=0,kkm2=0;
-		FOR(l,0,15) FOR(m,0,15) {
-				// printf("l=%d, m=%d, cnt=%d\n",l,m,cnt[l][m]); 
-			if(cnt[l][m]>mx) {
-				mx=cnt[l][m];
-				kkl2=l,kkm2=m;
+			FOR(l,0,15) FOR(m,0,15) {
+				cnt2[l][m]=abs(cnt2[l][m]-T/2);
 			}
-		}
-		// printf("%d %d\n",kkl2,kkm2);
-		
-		// [i[20][4..=23]][kkl[4]: 20..=23]
-		// .. [i[0..=3][4]][kkm[4]: 28..=31] 
-		int x,y,z,a; // 32bits - 4*4bits = 16bits
-		FOR(x,0,15) {
-			FOR(y,0,15) {
-				FOR(z,0,15) {
-					FOR(a,0,15) {
-						int k=(x<<28) | (y<<24) | (z<<20) | (a<<16) | 
-							(kkl2<<12) | (kkl1<<8) | (kkm2<<4) | kkm1;
-						// printf("%x\n",k);
-						int ff=1;
-						FOR(j,1,2) {
-							int yy=spn(X[j],k);
-							// printf("%x\n",yy);
-							if(yy!=Y[j]) {
-								ff=0;
-								break;
+
+			// std::vector<Z> vz;
+			// FOR(l,0,15) FOR(m,0,15) 
+			// 	vz.push_back((Z) { l, m, cnt[l][m] });
+			// std::sort(vz.begin(), vz.end(), my_cmp);
+			// FOR(i,0,2) printf("i=%d x=%d, y=%d\n",i,vz[i].l,vz[i].m);
+			
+			int mx=-1;int kkl2=0,kkm2=0;
+			FOR(l,0,15) FOR(m,0,15) {
+					// printf("l=%d, m=%d, cnt=%d\n",l,m,cnt[l][m]); 
+				if(cnt2[l][m]>mx) {
+					mx=cnt2[l][m];
+					kkl2=l,kkm2=m;
+				}
+			}
+			// printf("%d %d\n",kkl2,kkm2);
+			
+			// [i[20][4..=23]][kkl[4]: 20..=23]
+			// .. [i[0..=3][4]][kkm[4]: 28..=31] 
+			int x,y,z,a; // 32bits - 4*4bits = 16bits
+			FOR(x,0,15) {
+				FOR(y,0,15) {
+					FOR(z,0,15) {
+						FOR(a,0,15) {
+							int k=(x<<28) | (y<<24) | (z<<20) | (a<<16) | 
+								(kkl2<<12) | (kkl1<<8) | (kkm2<<4) | kkm1;
+							// printf("%x\n",k);
+							int ff=1;
+							FOR(j,1,2) {
+								int yy=spn(X[j],k);
+								// printf("%x\n",yy);
+								if(yy!=Y[j]) {
+									ff=0;
+									break;
+								}
+							}
+							if(ff) {
+								print32(k);
+								puts("");
+								goto nxt_loop_out;
 							}
 						}
-						if(ff) {
-							printf("%x\n",k);
-							goto nxt_loop_out;
-						}
 					}
 				}
-			}
-		} 
+			} 
+			cnt[kkl1][kkm1] =0; // failed
+		}
 		nxt_loop_out:;
 		// ���һ�У�8��16�����ַ�����ʾ32���ص���Կ 
 	}
