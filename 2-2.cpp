@@ -1,3 +1,46 @@
+#pragma GCC optimize(3)
+#pragma GCC optimize("Ofast")
+#pragma GCC optimize("inline")
+#pragma GCC optimize("-fgcse")
+#pragma GCC optimize("-fgcse-lm")
+#pragma GCC optimize("-fipa-sra")
+#pragma GCC optimize("-ftree-pre")
+#pragma GCC optimize("-ftree-vrp")
+#pragma GCC optimize("-fpeephole2")
+#pragma GCC optimize("-ffast-math")
+#pragma GCC optimize("-fsched-spec")
+#pragma GCC optimize("unroll-loops")
+#pragma GCC optimize("-falign-jumps")
+#pragma GCC optimize("-falign-loops")
+#pragma GCC optimize("-falign-labels")
+#pragma GCC optimize("-fdevirtualize")
+#pragma GCC optimize("-fcaller-saves")
+#pragma GCC optimize("-fcrossjumping")
+#pragma GCC optimize("-fthread-jumps")
+#pragma GCC optimize("-funroll-loops")
+#pragma GCC optimize("-freorder-blocks")
+#pragma GCC optimize("-fschedule-insns")
+#pragma GCC optimize("inline-functions")
+#pragma GCC optimize("-ftree-tail-merge")
+#pragma GCC optimize("-fschedule-insns2")
+#pragma GCC optimize("-fstrict-aliasing")
+#pragma GCC optimize("-falign-functions")
+#pragma GCC optimize("-fcse-follow-jumps")
+#pragma GCC optimize("-fsched-interblock")
+#pragma GCC optimize("-fpartial-inlining")
+#pragma GCC optimize("no-stack-protector")
+#pragma GCC optimize("-freorder-functions")
+#pragma GCC optimize("-findirect-inlining")
+#pragma GCC optimize("-fhoist-adjacent-loads")
+#pragma GCC optimize("-frerun-cse-after-loop")
+#pragma GCC optimize("inline-small-functions")
+#pragma GCC optimize("-finline-small-functions")
+#pragma GCC optimize("-ftree-switch-conversion")
+#pragma GCC optimize("-foptimize-sibling-calls")
+#pragma GCC optimize("-fexpensive-optimizations")
+#pragma GCC optimize("inline-functions-called-once")
+#pragma GCC optimize("-fdelete-null-pointer-checks")
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h> 
@@ -70,7 +113,7 @@ inline int pip(int y) {
 	}
 	return ans;
 }
-int spn(int x,int k) {
+inline int spn(int x,int k) {
 	int r,w=x,u,j;
 	FOR(r,1,3) {
 		int kr=(k>>(4*(5-r)))&0xFFFF;//16bit
@@ -149,13 +192,8 @@ int main() {
 // 				kkl1=l,kkm1=m;
 // 			}
 		}
-		// std::vector<Z> vy;
-		// FOR(l,0,15) FOR(m,0,15) 
-		// 	vy.push_back((Z) { l, m, cnt[l][m] });
-		// std::sort(vy.begin(), vy.end(), my_cmp);
-		// FOR(i,0,2) printf("i=%d x=%d, y=%d\n",i,vy[i].l,vy[i].m);
 		int g;
-		FOR(g,0,9) {
+		FOR(g,0,20) {
 			int kkl1,kkm1;
 			int mx1=-1;
 			FOR(l,0,15) FOR(m,0,15) {
@@ -175,17 +213,19 @@ int main() {
 				int u4b6=(u42>>2)&0x1,u4b8=u42&0x1;
 				int x5=(X[i]>>(16-5))&0x1;
 				int x6=(X[i]>>(16-6))&0x1;
+				int xx=x5^x6^u4b6^u4b8;
 				FOR(l,0,15) {
 					int v41=l^y1;
 					int u41=pis2(v41);
 					int u4b2=((u41>>2)&0x1),u4b4=u41&0x1;
+					int yy=xx^u4b2^u4b4;
 					FOR(m,0,15) {
 						int v43=m^y3;
 						int u43=pis2(v43);
 						int u4b10=(u43>>2)&0x1,u4b12=u43&0x1;
-						int z=x5^x6^ /*5,6*/
+						int z=/*5,6*/
 						/* 2,4,6,8,10,12*/
-							u4b2^u4b4^u4b6^u4b8^u4b10^u4b12;
+							yy^u4b10^u4b12;
 						// if(i==10)printf("l=%d, m=%d, d=%d\n",l,m,z);
 						if (z==0) {
 							// printf("%d %d %d\n",i,l,m);
@@ -194,18 +234,9 @@ int main() {
 					}
 				}
 			}
-			FOR(l,0,15) FOR(m,0,15) {
-				cnt2[l][m]=abs(cnt2[l][m]-T/2);
-			}
-
-			// std::vector<Z> vz;
-			// FOR(l,0,15) FOR(m,0,15) 
-			// 	vz.push_back((Z) { l, m, cnt[l][m] });
-			// std::sort(vz.begin(), vz.end(), my_cmp);
-			// FOR(i,0,2) printf("i=%d x=%d, y=%d\n",i,vz[i].l,vz[i].m);
-			
 			int mx=-1;int kkl2=0,kkm2=0;
 			FOR(l,0,15) FOR(m,0,15) {
+				cnt2[l][m]=abs(cnt2[l][m]-T/2);
 					// printf("l=%d, m=%d, cnt=%d\n",l,m,cnt[l][m]); 
 				if(cnt2[l][m]>mx) {
 					mx=cnt2[l][m];
@@ -216,32 +247,19 @@ int main() {
 			
 			// [i[20][4..=23]][kkl[4]: 20..=23]
 			// .. [i[0..=3][4]][kkm[4]: 28..=31] 
-			int x,y,z,a; // 32bits - 4*4bits = 16bits
-			FOR(x,0,15) {
-				FOR(y,0,15) {
-					FOR(z,0,15) {
-						FOR(a,0,15) {
-							int k=(x<<28) | (y<<24) | (z<<20) | (a<<16) | 
-								(kkl2<<12) | (kkl1<<8) | (kkm2<<4) | kkm1;
-							// printf("%x\n",k);
-							int ff=1;
-							FOR(j,1,2) {
-								int yy=spn(X[j],k);
-								// printf("%x\n",yy);
-								if(yy!=Y[j]) {
-									ff=0;
-									break;
-								}
-							}
-							if(ff) {
-								print32(k);
-								puts("");
-								goto nxt_loop_out;
-							}
-						}
+			// int x,y,z,a; // 32bits - 4*4bits = 16bits
+			int kt= (kkl2<<12) | (kkl1<<8) | (kkm2<<4) | kkm1;
+			FOR(i,0,((2<<16)-1)) {
+				int k=(i<<16) | kt;
+				// printf("%x\n",k);
+				if(spn(X[1],k)==Y[1]) {
+					if(spn(X[2],k)==Y[2]) {
+						print32(k);
+						puts("");
+						goto nxt_loop_out;
 					}
 				}
-			} 
+			}
 			cnt[kkl1][kkm1] =0; // failed
 		}
 		nxt_loop_out:;
