@@ -17,6 +17,58 @@ ll inv(ll a,ll m) {
 }
 ll gcd(ll a,ll b) { return b?gcd(b,a%b):a; }
 ll abs_sub(ll a,ll b) { return a>b?a-b:b-a; }
+ll pow(ll a, ll u, ll m){
+    ll ans=1;
+    while(u){
+        if(u%2!=0) ans*=a,ans%=m;
+        a*=a,a%=m,u/=2;
+    }
+    return ans%m;
+}
+gmp_randclass _r(gmp_randinit_mt);
+bool __r = false;
+ll _rand(int llts){
+    if (__r == false) {
+        _r.seed(clock());
+        int t = clock();
+        while (t--) _r.get_z_bits(10);
+        __r = true;
+    }
+    return _r.get_z_bits(llts);
+}
+ll rand(ll mod){
+    int bits = 500;
+    ll ret = _rand(bits);
+    while(ret<mod) bits*=2, ret=_rand(bits);
+    return ret % mod;
+}
+bool miller_rabin(ll n){
+    ll a = rand(n - 1) + 1;
+    ll _2k = (n - 1) & (1 - n);
+    int k = 0;
+    while (((ll)1 << k) != _2k) k++;
+    ll m = (n - 1) / _2k;
+    ll b = pow(a, m, n);
+    if (b == 1)
+        return true;
+    for (int i = 0; i < k; i++) {
+        if (b == n - 1)
+            return true;
+        else {
+            b = b * b;
+            b %= n;
+        }
+    }
+    return false;
+}
+bool is_prime(ll val) { 
+    /* int ret = mpz_probab_prime_p(val.get_mpz_t(), 16);
+    if (ret == 0) return false;
+    else return true; */
+    int t=8;
+    while (t--) if (!miller_rabin(val)) return false;
+    return true;
+}
 int main() {
     // freopen("5-data.in","r",stdin);
     // freopen("5-data.out","w",stdout);
@@ -35,25 +87,30 @@ int main() {
             continue;
         }
         ll n=p*q;
-        int reps=15,r1,r2; ll sq=sqrt(p);
-        r1=mpz_probab_prime_p(p.get_mpz_t(),reps);
-        r2=mpz_probab_prime_p(q.get_mpz_t(),reps);
-        if(r1==0||r2==0) {
+        if(!is_prime(p)||!is_prime(q)) {
             cout<<"ERROR"<<endl;
             continue;
         }
-        if(sq>100) reps=50;
-        else if(sq>10000) reps=150;
-        if(r1==1) r1=mpz_probab_prime_p(p.get_mpz_t(),reps);
-        if(r1==0) {
-            cout<<"ERROR"<<endl;
-            continue;
-        }
-        if(r2==1) r2=mpz_probab_prime_p(p.get_mpz_t(),reps);
-        if(r2==0) {
-            cout<<"ERROR"<<endl;
-            continue;
-        }
+        // int reps=15,r1,r2; 
+        ll sq=sqrt(p);
+        // r1=mpz_probab_prime_p(p.get_mpz_t(),reps);
+        // r2=mpz_probab_prime_p(q.get_mpz_t(),reps);
+        // if(r1==0||r2==0) {
+        //     cout<<"ERROR"<<endl;
+        //     continue;
+        // }
+        // if(sq>100) reps=50;
+        // else if(sq>10000) reps=150;
+        // if(r1==1) r1=mpz_probab_prime_p(p.get_mpz_t(),reps);
+        // if(r1==0) {
+        //     cout<<"ERROR"<<endl;
+        //     continue;
+        // }
+        // if(r2==1) r2=mpz_probab_prime_p(p.get_mpz_t(),reps);
+        // if(r2==0) {
+        //     cout<<"ERROR"<<endl;
+        //     continue;
+        // }
         if((p>100||q>100)&&abs_sub(p,q)<sq) { 
             cout<<"ERROR"<<endl;
             continue;

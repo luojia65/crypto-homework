@@ -18,13 +18,16 @@
 #pragma GCC optimize("-fcrossjumping")
 #pragma GCC optimize("-fthread-jumps")
 #pragma GCC optimize("-funroll-loops")
+#pragma GCC optimize("-fwhole-program")
 #pragma GCC optimize("-freorder-blocks")
 #pragma GCC optimize("-fschedule-insns")
 #pragma GCC optimize("inline-functions")
 #pragma GCC optimize("-ftree-tail-merge")
 #pragma GCC optimize("-fschedule-insns2")
 #pragma GCC optimize("-fstrict-aliasing")
+#pragma GCC optimize("-fstrict-overflow")
 #pragma GCC optimize("-falign-functions")
+#pragma GCC optimize("-fcse-skip-blocks")
 #pragma GCC optimize("-fcse-follow-jumps")
 #pragma GCC optimize("-fsched-interblock")
 #pragma GCC optimize("-fpartial-inlining")
@@ -38,6 +41,7 @@
 #pragma GCC optimize("-ftree-switch-conversion")
 #pragma GCC optimize("-foptimize-sibling-calls")
 #pragma GCC optimize("-fexpensive-optimizations")
+#pragma GCC optimize("-funsafe-loop-optimizations")
 #pragma GCC optimize("inline-functions-called-once")
 #pragma GCC optimize("-fdelete-null-pointer-checks")
 
@@ -78,6 +82,14 @@ inline void print32(int a) {
 		else if (c>=10&&c<=15) putchar('a'+c-10);
 	}
 }
+int SBOX[]={
+	0xE, 0x4, 0xD, 0x1, 0x2, 0xF, 0xB, 0x8,
+	0x3, 0xA, 0x6, 0xC, 0x5, 0x9, 0x0, 0x7
+};
+int PBOX[]={ 
+	1,5,9,13,	2,6,10,14,
+	3,7,11,15,	4,8,12,16
+};
 // E4D1_2FB8_3A6C_5907
 inline int pis(int y) {
 	int A[]={
@@ -90,7 +102,7 @@ inline int sbox16(int u) {
 	int v=0,j;
 	FOR(j,1,4) {
 		int vri = (u>>(4*(j-1)))&0xF;
-		v|=pis(vri)<<(4*(j-1));
+		v|=SBOX[vri]<<(4*(j-1));
 	}
 	return v;
 }
