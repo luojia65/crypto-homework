@@ -61,7 +61,7 @@ inline int pip(int y) {
 }
 inline int spn(int x,int k) {
 	int r,w=x,u,j;
-    static int sd=0x87755442;
+    static int sd=0x66115588;
 	FOR(r,1,3) {
 		int kr=(k>>(4*(5-r)))&0xFFFF;//16bit
 		u=w^kr;
