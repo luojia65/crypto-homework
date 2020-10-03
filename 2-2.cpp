@@ -164,18 +164,20 @@ int main() {
 			int y2=(Y[i]>>8)&0xF,y4=Y[i]&0xF;
 			int x5=(X[i]>>11)&0x1,x7=(X[i]>>9)&0x1;
 			int x8=(X[i]>>8)&0x1;
+			int xx=x5^x7^x8;
 //			printf("y2=%x,y4=%x,",y2,y4);
 			FOR(l,0,15) {
 				int v42=l^y2;
 				int u42=pis2(v42);
 				int u4b6=(u42>>2)&0x1,u4b8=u42&0x1;
+				int yy=xx^u4b6^u4b8;
 				FOR(m,0,15) {
 					int v44=m^y4;
 	//				printf("v42=%x,v44=%x,",v42,v44);
 					int u44=pis2(v44);
 	//				printf("u42=%x,u44=%x,",u42,u44);
 					int u4b14=(u44>>2)&0x1,u4b16=u44&0x1;
-					int z=x5^x7^x8^u4b6^u4b8^u4b14^u4b16;
+					int z=yy^u4b14^u4b16;
 	//				printf("z=%d\n",z);
 					if (z==0) {
 						cnt[l][m]+=1;
@@ -267,4 +269,3 @@ int main() {
 	}
 	return 0;
 }
-
