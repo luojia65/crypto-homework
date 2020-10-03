@@ -145,27 +145,28 @@ int main() {
 		MEMSET(cnt, 0);
 		// cnt[l][m]=0;
 		FOR(i,1,8000){
-			int y1=(Y[i]>>12)&0xF;
-			int y2=(Y[i]>>8)&0xF;
-			int y3=(Y[i]>>4)&0xF;
+			int y1=(Y[i]>>12)&0xF,y2=(Y[i]>>8)&0xF,y3=(Y[i]>>4)&0xF;
 			// int y4=Y[i]&0xF;
-			FOR(l,0,15) FOR(m,0,15) {
-				int v41=l^y1,v43=m^y3;
-				int u41=pis2(v41),u43=pis2(v43);
-				int u42=pis2(kkl1^y2);
-				// int u44=pis2(kkm1^y4);
-				int x5=(X[i]>>(16-5))&0x1;
-				int x6=(X[i]>>(16-6))&0x1;
-				int z=x5^x6^ /*5,6*/
-				/* 2,4,6,8,10,12*/
-					((u41>>2)&0x1)^ (u41&0x1)^
-					((u42>>2)&0x1)^ (u42&0x1)^
-					((u43>>2)&0x1)^ (u43&0x1) ^ 1;
-					
-                        // if(i==10)printf("l=%d, m=%d, d=%d\n",l,m,z);
-				if (z==0) {
-                    // printf("%d %d %d\n",i,l,m);
-					cnt[l][m]+=1;
+			int u42=pis2(kkl1^y2);
+			int u4b6=(u42>>2)&0x1,u4b8=u42&0x1;
+			int x5=(X[i]>>(16-5))&0x1;
+			int x6=(X[i]>>(16-6))&0x1;
+			FOR(l,0,15) {
+				int v41=l^y1;
+				int u41=pis2(v41);
+				int u4b2=((u41>>2)&0x1),u4b4=u41&0x1;
+				FOR(m,0,15) {
+					int v43=m^y3;
+					int u43=pis2(v43);
+					int u4b10=(u43>>2)&0x1,u4b12=u43&0x1;
+					int z=x5^x6^ /*5,6*/
+					/* 2,4,6,8,10,12*/
+						u4b2^u4b4^u4b6^u4b8^u4b10^u4b12;
+					// if(i==10)printf("l=%d, m=%d, d=%d\n",l,m,z);
+					if (z==0) {
+						// printf("%d %d %d\n",i,l,m);
+						cnt[l][m]+=1;
+					}
 				}
 			}
 		}
