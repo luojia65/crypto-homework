@@ -190,23 +190,32 @@ int main() {
 		
 		// [i[20][4..=23]][kkl[4]: 20..=23]
 		// .. [i[0..=3][4]][kkm[4]: 28..=31] 
-		FOR(i,0,(2<<16)-1) { // 32bits - 2*4bits = 28bits
-			int k=(i<<16) | (kkl2<<12) | (kkl1<<8) | (kkm2<<4) | kkm1;
-			// printf("%x\n",k);
-			int ff=1;
-			FOR(j,1,10) {
-				int yy=spn(X[j],k);
-				// printf("%x\n",yy);
-				if(yy!=Y[j]) {
-					ff=0;
-					break;
+		int x,y,z,a; // 32bits - 4*4bits = 16bits
+		FOR(x,0,15) {
+			FOR(y,0,15) {
+				FOR(z,0,15) {
+					FOR(a,0,15) {
+						int k=(x<<28) | (y<<24) | (z<<20) | (a<<16) | 
+							(kkl2<<12) | (kkl1<<8) | (kkm2<<4) | kkm1;
+						// printf("%x\n",k);
+						int ff=1;
+						FOR(j,1,2) {
+							int yy=spn(X[j],k);
+							// printf("%x\n",yy);
+							if(yy!=Y[j]) {
+								ff=0;
+								break;
+							}
+						}
+						if(ff) {
+							printf("%x\n",k);
+							goto nxt_loop_out;
+						}
+					}
 				}
 			}
-			if(ff) {
-				printf("%x\n",k);
-				break;
-			}
 		} 
+		nxt_loop_out:;
 		// ���һ�У�8��16�����ַ�����ʾ32���ص���Կ 
 	}
 	return 0;
