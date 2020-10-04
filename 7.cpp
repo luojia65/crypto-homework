@@ -3,7 +3,7 @@
 #include <stdio.h>
 #define FOR(x,f,t) for(x=f;x<=t;++x)
 using namespace std;
-#define ll mpz_class
+typedef mpz_class ll;
 
 ll exgcd(ll a,ll b,ll &x,ll &y) {
     if(b==0) { x=1,y=0; return a; }
