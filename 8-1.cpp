@@ -39,6 +39,7 @@ mp_limb_t T_temp[64];
 mp_limb_t t0_mul_IN[4];
 mp_limb_t carry;
 void mont_mul_IR(mpz_t T, const mpz_t N, mp_limb_t IN, int cnt) {
+    gmp_printf("T=%Zd, N=%Zd; ",T,N);
   mp_limb_t *p_t0 = T_temp;
 //  mp_limb_t *p_tail = T_temp + (cnt << 1);
   mp_limb_t *pN = N->_mp_d;
@@ -46,6 +47,8 @@ void mont_mul_IR(mpz_t T, const mpz_t N, mp_limb_t IN, int cnt) {
   int T_size = T->_mp_size;
   memcpy(T_temp, pT, T_size * LIMBBYTES);
   memset(T_temp+T_size, 0, ((cnt<<1)+1-T_size) * LIMBBYTES);
+  
+//   int ii;for(ii=0;ii<=20;++ii)printf("%d,",T_temp[ii]);puts("");
 
   int nTSubCnt = cnt + 1;
   for (int i = 0; i < cnt; ++i) {
@@ -59,18 +62,20 @@ void mont_mul_IR(mpz_t T, const mpz_t N, mp_limb_t IN, int cnt) {
 //  pT = T->_mp_d;
   memcpy(T->_mp_d, p_t0, LIMBBYTES * cnt);
   T->_mp_size = cnt;
+    gmp_printf("Ans: T=%Zd\n",T);
 }
 
 mpz_t pow;
 void mont_pow_mod(mpz_t result, const mpz_t base, char* exp, int exp_end, const mpz_t mod, mp_limb_t IN, int cnt) {
-  gmp_printf("a=%Zd,size=%d,m=%Zd\n",base,cnt,mod);
-  gmp_printf("A=%Zd,A->_mp_d=%p,A->_mp_size=%lld\n",pow,pow->_mp_d,pow->_mp_size);
+//   gmp_printf("a=%Zd,size=%d,m=%Zd\n",base,cnt,mod);
+//   gmp_printf("A=%Zd,A->_mp_d=%p,A->_mp_size=%lld\n",pow,pow->_mp_d,pow->_mp_size);
   memset(pow->_mp_d, 0, cnt * LIMBBYTES);
   memcpy(pow->_mp_d + cnt, base->_mp_d, base->_mp_size * LIMBBYTES);
   pow->_mp_size = base->_mp_size + cnt;
-  gmp_printf("2:A=%Zd,A->_mp_d=%p,%d,A->_mp_size=%lld\n",pow,pow->_mp_d,*(pow->_mp_d),pow->_mp_size);
+//   gmp_printf("2:A=%Zd,A->_mp_d=%p,%d,A->_mp_size=%lld\n",pow,pow->_mp_d,*(pow->_mp_d),pow->_mp_size);
   mpz_mod(pow, pow, mod);
-  gmp_printf("2:A=%Zd,A->_mp_d=%p,A->_mp_size=%lld\n",pow,pow->_mp_d,pow->_mp_size);
+  gmp_printf("2:A=%Zd\n",pow);
+    gmp_printf("1:P=%Zd\n",result);
   
   for (int i = exp_end; i >= 0; --i) {
       if (exp[i] == '1') {

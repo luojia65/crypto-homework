@@ -19,14 +19,15 @@ using namespace std;
 // }
 
 // T<-MontMul(A,B)
+mp_limb_t t[100];
+mp_limb_t t0_IN[10];
 void mont_mul(mpz_t T, mpz_t N, mp_limb_t IN, size_t cnt) {
-    gmp_printf("T=%Zd, N=%Zd\n",T,N);
+    // gmp_printf("T=%Zd, N=%Zd; ",T,N);
     size_t i;
-    mp_limb_t t[100];
-    mp_limb_t t0_IN[10];
     mp_limb_t a; // 进位位
     memcpy(t, T->_mp_d, T->_mp_size*sizeof(mp_limb_t));
     memset(t+T->_mp_size, 0, ((cnt*2+1)-T->_mp_size)*sizeof(mp_limb_t));
+//   int ii;for(ii=0;ii<=20;++ii)printf("%d,",t[ii]);puts("");
     mp_limb_t *t_cur=t;
     size_t sub_cnt=cnt+1;
     FOR(i,1,cnt) {
@@ -39,22 +40,24 @@ void mont_mul(mpz_t T, mpz_t N, mp_limb_t IN, size_t cnt) {
     // if T'>N, T'-=N
     if (mpn_cmp(N->_mp_d, t_cur, cnt) < 0 || t_cur[cnt] > 0) 
         mpn_sub(t_cur, t_cur, cnt + 1, N->_mp_d, cnt);
-    memcpy(T->_mp_d, t, cnt*sizeof(mp_limb_t));
+    memcpy(T->_mp_d, t_cur, cnt*sizeof(mp_limb_t));
     T->_mp_size = cnt;
+    // gmp_printf("Ans: T=%Zd\n",T);
 }
 
 #define CNT_MAX 20
 mpz_t A; 
 // P(Prod) <- a^e mod m. *e = ['0'|'1']{el}
 void mont_modpow(mpz_t P, mpz_t a, char *e, int el, mpz_t m, mp_limb_t IN, int cnt) {
-    gmp_printf("a=%Zd,size=%d,m=%Zd\n",a,cnt,m);
-    gmp_printf("A=%Zd,A->_mp_d=%p,A->_mp_size=%lld\n",A,A->_mp_d,A->_mp_size);
+    // gmp_printf("a=%Zd,size=%d,m=%Zd\n",a,cnt,m);
+    // gmp_printf("A=%Zd,A->_mp_d=%p,A->_mp_size=%lld\n",A,A->_mp_d,A->_mp_size);
     memset(A->_mp_d, 0, cnt*sizeof(mp_limb_t));
     memcpy(A->_mp_d+cnt, a->_mp_d, a->_mp_size*sizeof(mp_limb_t));
     A->_mp_size = a->_mp_size + cnt;
-    gmp_printf("2:A=%Zd,A->_mp_d=%p,%d,A->_mp_size=%lld\n",A,A->_mp_d,*(A->_mp_d),A->_mp_size);
+    // gmp_printf("2:A=%Zd,A->_mp_d=%p,%d,A->_mp_size=%lld\n",A,A->_mp_d,*(A->_mp_d),A->_mp_size);
     mpz_mod(A,A,m); // A<-A%m
-    gmp_printf("2:A=%Zd,A->_mp_d=%p,A->_mp_size=%lld\n",A,A->_mp_d,A->_mp_size);
+    // gmp_printf("2:A=%Zd\n",A);
+        // gmp_printf("1:P=%Zd\n",P);
     int i; RFOR(i,el,0) {
         if (e[i]=='1') { // if e===1(mod2)
             mpz_mul(P,P,A);
@@ -62,12 +65,12 @@ void mont_modpow(mpz_t P, mpz_t a, char *e, int el, mpz_t m, mp_limb_t IN, int c
         }
         mpz_mul(A,A,A);
         mont_mul(A,m,IN,cnt);// A=MontMul(A,A)
-        gmp_printf("P=%Zd\n",P);
+        // gmp_printf("P=%Zd\n",P);
     }
     mont_mul(P,m,IN,cnt);
 }
 
-char dd[10005];
+char ddp[10005],ddq[10005];
 int main() {
     mpz_init2(A, 2 * CNT_MAX * 8 * sizeof(mp_limb_t));
     int i,n; 
@@ -85,7 +88,7 @@ int main() {
     mpz_inits(pq, NULL);
     mpz_mul(pq,p,q);
 
-    gmp_printf("pq=%Zd\n",pq);
+    // gmp_printf("pq=%Zd\n",pq);
 
     // ll phi_n=(p-1)*(q-1);
     mpz_t p1,q1,phi_n; //p1=p-1
@@ -94,13 +97,13 @@ int main() {
     mpz_sub_ui(q1,q,1);
     mpz_mul(phi_n,p1,q1);
     
-    gmp_printf("p1=%Zd,q1=%Zd,phi_n=%Zd\n",p1,q1,phi_n);
+    // gmp_printf("p1=%Zd,q1=%Zd,phi_n=%Zd\n",p1,q1,phi_n);
 
     // ll d=inv(e,phi_n);
     mpz_t d;
     mpz_inits(d,NULL);
     mpz_invert(d,e,phi_n);
-    gmp_printf("d=%Zd\n",d);
+    // gmp_printf("d=%Zd\n",d);
 
     // ll i1q=q*inv(q,p),i2p=p*inv(p,q);
     mpz_t piq,i2p,qip,i1q;
@@ -110,7 +113,7 @@ int main() {
     mpz_invert(qip,q,p);
     mpz_mul(i1q,qip,q);
 
-    gmp_printf("piq=%Zd,i2p=%Zd,qip=%Zd,i1q=%Zd\n",piq,i2p,qip,i1q);
+    // gmp_printf("piq=%Zd,i2p=%Zd,qip=%Zd,i1q=%Zd\n",piq,i2p,qip,i1q);
 
     // ll dp=d%(p-1),dq=d%(q-1);
     mpz_t dp,dq;
@@ -118,14 +121,16 @@ int main() {
     mpz_mod(dp,d,p1);
     mpz_mod(dq,d,q1);
 
-	mpz_get_str(dd,2,d);
-	int dl=strlen(dd);
+	mpz_get_str(ddp,2,dp);
+	int dpl=strlen(ddp)-1;
+	mpz_get_str(ddq,2,dq);
+	int dql=strlen(ddq)-1;
 
     mpz_t N; //=2^32
     mpz_init2(N, 2*sizeof(mp_limb_t));
     N->_mp_d[0]=0,N->_mp_d[1]=1;
     N->_mp_size=2;
-    gmp_printf("N=%Zd\n",N);
+    // gmp_printf("N=%Zd\n",N);
 
     mpz_t p_IN,q_IN; // IN=-N^(-1) mod p(q)
     mpz_inits(p_IN,q_IN,NULL);
@@ -133,28 +138,44 @@ int main() {
     mpz_invert(q_IN,q,N),mpz_sub(q_IN,N,q_IN);
     mp_limb_t p_IN_limb=*(p_IN->_mp_d);
     mp_limb_t q_IN_limb=*(q_IN->_mp_d);
-    gmp_printf("p_IN_limb=%d,q_IN_limb=%d\n",p_IN_limb,q_IN_limb);
+    // gmp_printf("p_IN_limb=%d,q_IN_limb=%d\n",p_IN_limb,q_IN_limb);
 
     size_t p_cnt=p->_mp_size;
     size_t q_cnt=q->_mp_size;
 
     mpz_t c,pp,qq,cp,cq;
-    mpz_inits(c,pp,qq,cp,cq,NULL);
+    mpz_inits(c,cp,cq,NULL);
+    mpz_init2(pp, (p_cnt+1)*8*sizeof(mp_limb_t));
+    memset(pp->_mp_d, 0, p_cnt*sizeof(mp_limb_t));
+    pp->_mp_d[p_cnt] = 1;
+    pp->_mp_size = p_cnt + 1;
+    mpz_mod(pp,pp,p);
+    mpz_init2(qq, (q_cnt+1)*8*sizeof(mp_limb_t));
+    memset(qq->_mp_d, 0, q_cnt*sizeof(mp_limb_t));
+    qq->_mp_d[q_cnt] = 1;
+    qq->_mp_size = q_cnt + 1;
+    mpz_mod(qq,qq,q);
     
     FOR(i,1,n) {
         gmp_scanf("%Zd",c);
-        gmp_printf("c=%Zd\n",c);
+        // gmp_printf("c=%Zd\n",c);
 
         mpz_mod(cp, c, p);
         mpz_mod(cq, c, p);
-        mont_modpow(pp,cp,dd,dl,p,p_IN_limb,p_cnt); // c^d mod p
-        gmp_printf("pp=%Zd\n",pp);
-        mont_modpow(qq,cq,dd,dl,q,q_IN_limb,q_cnt); // c^d mod q
+        mpz_t pp1,qq1;
+        mpz_inits(pp1,qq1,NULL);
+
+        mpz_set(pp1, pp);
+        mont_modpow(pp1,cp,ddp,dpl,p,p_IN_limb,p_cnt); // c^d mod p
+        
+        mpz_set(qq1, qq);
+        mont_modpow(qq1,cq,ddq,dql,q,q_IN_limb,q_cnt); // c^d mod q
+
         //ll x=pp*i1q+qq*i2p;
         mpz_t x;
         mpz_inits(x,NULL);
-        mpz_mul(x,pp,i1q);
-        mpz_addmul(x,qq,i2p);
+        mpz_mul(x,pp1,i1q);
+        mpz_addmul(x,qq1,i2p);
         // x%=pq
         mpz_mod(x,x,pq);
         gmp_printf("%Zd\n",x);
