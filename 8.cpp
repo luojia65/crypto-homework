@@ -51,7 +51,7 @@ void mont_modpow(mpz_t P, mpz_t a, char *e, int el, mpz_t m, mp_limb_t IN, int c
 
 char dd[10005];
 int main() {
-    int i,N; cin>>N;
+    int i,n; cin>>n;
     mpz_t p,q,e;
     gmp_scanf("%Zd%Zd%Zd",p,q,e);
 
@@ -88,14 +88,29 @@ int main() {
     mpz_init2(N, 2*sizeof(mp_limb_t));
     N->_mp_d[0]=0,N->_mp_d[1]=1;
     N->_mp_size=2;
-    
-    FOR(i,1,N) {
+
+    mpz_t p_IN,q_IN; // IN=-N^(-1) mod p(q)
+    mpz_invert(p_IN,p,N),mpz_sub(p_IN,N,p_IN);
+    mpz_invert(q_IN,q,N),mpz_sub(q_IN,N,q_IN);
+    mp_limb_t p_IN_limb=*(p_IN->_mp_d);
+    mp_limb_t q_IN_limb=*(q_IN->_mp_d);
+
+    size_t p_cnt=p->_mp_size;
+    size_t q_cnt=q->_mp_size;
+
+    FOR(i,1,n) {
         mpz_t c,pp,qq;
         gmp_scanf("%Zd",&c);
 
-        mont_modpow(pp,c,dd,dl,p,p_IN,cnt); // c^d mod p
-        // ll qq=powmod(c%q,dq,q); // c^d mod q
-        
+        mont_modpow(pp,c,dd,dl,p,p_IN_limb,p_cnt); // c^d mod p
+        mont_modpow(qq,c,dd,dl,q,q_IN_limb,q_cnt); // c^d mod q
+        //ll x=pp*i1q+qq*i2p;
+        mpz_t x;
+        mpz_mul(x,pp,i1q);
+        mpz_addmul(x,qq,i2p);
+        // x%=pq
+        mpz_mod(x,x,pq);
+        gmp_printf("%Zd\n",x);
     }
     return 0;
 }
