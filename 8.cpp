@@ -18,6 +18,70 @@ using namespace std;
 //     gmp_printf("%Zd\n", ans);
 // }
 
+void exgcd(mpz_t ans,mpz_t a,mpz_t b,mpz_t x,mpz_t y) {
+    /*
+    if(b==0) { x=1,y=0; return a; }
+    ll ans=exgcd(b,a%b,x,y);
+    ll mid=x; x=y; y=mid-a/b*y;
+    return ans;
+    */
+    if(b->_mp_d[0]==0) { 
+        mpz_set_ui(x,1); 
+        mpz_set_ui(y,0); 
+        mpz_set(ans,a);
+        return;
+    }
+    mpz_t amb,ans1; mpz_inits(amb,ans1,NULL);
+    mpz_mod(amb,a,b);
+    exgcd(ans1,b,amb,x,y);
+    mpz_set(ans,ans1);
+    mpz_t mid,t; mpz_inits(mid,t,NULL); 
+    mpz_set(mid,x);
+    mpz_set(x,y);
+    mpz_div(t,a,b);
+    mpz_mul(t,t,y);
+    mpz_sub(y,mid,t);
+}
+// ans=a^(-1)(mod m)
+void inv(mpz_t ans, mpz_t a, mpz_t m) {
+    /*
+    ll x,y;
+    ll ans=exgcd(a,m,x,y);
+    return ans==1?(x+m)%m:ll(-1);
+    */
+    mpz_t x,y; mpz_inits(x,y,ans,NULL);
+    exgcd(ans,a,m,x,y);
+    if(ans->_mp_d[0]==1) {
+        mpz_add(x,x,m);
+        mpz_mod(ans,x,m);
+    } else {
+        mpz_set_si(ans,-1);
+    }
+}
+// void inv(mpz_t t, mpz_t a, mpz_t b) {
+// 	mpz_t a0, b0, t0, q, r, tmp;
+// 	mpz_inits(a0, b0, t0, q, r, tmp, NULL);
+// 	mpz_set(a0, a);
+// 	mpz_set(b0, b);
+// 	mpz_set_ui(t0, 0);
+// 	mpz_set_ui(t, 1);
+// 	mpz_fdiv_qr(q, r, a0, b0);
+
+// 	while (r->_mp_d[0]>0) {
+// 		mpz_mul(tmp, q, t);
+// 		mpz_sub(tmp, t0, tmp);
+// 		mpz_mod(tmp, tmp, a);
+
+// 		mpz_set(t0, t);
+// 		mpz_set(t, tmp);
+// 		mpz_set(a0, b0);
+// 		mpz_set(b0, r);
+// 		mpz_fdiv_qr(q, r, a0, b0);
+// 	}
+// 	if (t->_mp_d[0] < 0)
+// 		mpz_add(t, t, a);
+// }
+
 // T<-MontMul(A,B)
 mp_limb_t t[100];
 mp_limb_t t0_IN[10];
@@ -102,15 +166,15 @@ int main() {
     // ll d=inv(e,phi_n);
     mpz_t d;
     mpz_inits(d,NULL);
-    mpz_invert(d,e,phi_n);
+    inv(d,e,phi_n);
     // gmp_printf("d=%Zd\n",d);
 
     // ll i1q=q*inv(q,p),i2p=p*inv(p,q);
     mpz_t piq,i2p,qip,i1q;
     mpz_inits(piq,i2p,qip,i1q,NULL);
-    mpz_invert(piq,p,q);
+    inv(piq,p,q);
     mpz_mul(i2p,piq,p);
-    mpz_invert(qip,q,p);
+    inv(qip,q,p);
     mpz_mul(i1q,qip,q);
 
     // gmp_printf("piq=%Zd,i2p=%Zd,qip=%Zd,i1q=%Zd\n",piq,i2p,qip,i1q);
