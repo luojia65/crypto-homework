@@ -1,66 +1,8 @@
-#include <iostream>
-#include <stdio.h>
-#include <string.h>
-#define FOR(x,f,t) for(x=f;x<=t;++x)
-using namespace std;
-int StrSHA1(const char* str, long long length, unsigned sha1[5]);
-void getstr(unsigned n,char str[8]);
-unsigned str2uint(char str[8]);
-void R(unsigned sha1[5],char str[8],int i);
+#include<iostream>
+#include <cstring>
 
-char p0[10005][10],pn[10005][810];
-char buf[45];
-char p[10];
-unsigned int q[5]; 
-unsigned int vq[5]; 
-char pp[10];
-unsigned int qq[5]; 
-int q_eq(unsigned int a[5], unsigned int b[5]) {
-    int i;
-    FOR(i,0,4) if(a[i]!=b[i]) return 0; //ne
-    return 1; //eq
-}
-int main() {
-    int i,j,k,m;
-    scanf("%d",&m);
-    FOR(i,1,m) {
-        scanf("%s",p0[i]);
-        scanf("%s",pn[i]);
-    }
-    scanf("%s",buf);
-    FOR(i,0,4) {
-        vq[i]=q[i]=str2uint(buf+i*8);
-    }
-    FOR(i,1,100001) {
-        R(q,p,i%1000); // p=R(q)
-        p[8]='\0';
-        // if(i<10)printf("%s\n",p);
-        // if(i<10){ 
-        //     FOR(k,0,4){
-        //         printf("%08X",q[k]);
-        //     }
-        //     puts("");
-        // }
-        FOR(j,1,m) {
-            // if(i<=10) printf("pn[j]=%s, p=%s\n",pn[j],p);
-            if(strcmp(pn[j],p)==0) {
-                strcpy(pp,p0[j]);
-                FOR(k,1,i+1) {
-                    StrSHA1(pp,8,qq); // qq=sha1(pp)
-                    if(q_eq(qq,vq)) {
-                        printf("%s\n",pp);
-                        return 0;
-                    }
-                    R(qq,pp,i); // pp=R(qq)
-                }
-            }
-        }
-        StrSHA1(p,8,q); // q=sha1(p)
-    }
-    puts("None");
-    return 0;
-}
-// source: genrainbow.cpp
+using namespace std;
+
 long SHA1_tmp;
 #define SHA1_ROTL(a,b) (SHA1_tmp=(a),((SHA1_tmp>>(32-b))&(0x7fffffff>>(31-b)))|(SHA1_tmp<<b))
 #define SHA1_F(B,C,D,t) ((t<40)?((t<20)?((B&C)|((~B)&D)):(B^C^D)):((t<60)?((B&C)|(B&D)|(C&D)):(B^C^D)))
@@ -103,8 +45,7 @@ int StrSHA1(const char* str, long long length, unsigned sha1[5]){
 
 void getstr(unsigned n,char str[8])
 {
-    str[0]='a';str[1]='0';str[2]='0';str[3]='0';
-    str[4]='0';str[5]='0';str[6]='0';str[7]='0';
+    str[0]='a';str[1]='0';str[2]='0';str[3]='0';str[4]='0';str[5]='0';str[6]='0';str[7]='0';
     int i=2;
     while(n)
     {
@@ -139,4 +80,73 @@ unsigned str2uint(char str[8])
 void R(unsigned sha1[5],char str[8],int i)
 {
     getstr((sha1[0]+sha1[1]*i)%2176782336,str);
+}
+
+unsigned stepi(char str[8],int i)
+{
+    i=1+i%1000;
+    unsigned sha1[5];
+    StrSHA1(str,8,sha1);
+    R(sha1,str,i);
+    return str2uint(str);
+}
+FILE *fp=NULL;
+unsigned long long *b;
+#define is_in(i)  b[i>>6]&(1LL<<(i&0x3f))
+#define set_int(i) b[i>>6]|=(1LL<<(i&0x3f))
+unsigned int randstr(char str[8])
+{
+    unsigned int tmp=(rand()*rand()+rand())%2176782336;
+    getstr(tmp,str);
+    return tmp;
+}
+
+void genchain()
+{
+    unsigned int stri;
+    int len=100000;
+    char str[9];
+    unsigned step,mycount;
+    str[8]=0;
+    b=(unsigned long long*)calloc(34012225,sizeof(long long));
+    mycount=0;
+    while(1)
+    {
+        if(mycount==2176782336)break;
+        printf("count=%d\n",mycount);
+        stri=randstr(str);
+        if(is_in(stri))//已经存在于链表中
+            continue;
+        fprintf(fp,"%s ",str);set_int(stri);mycount++;
+        for(int j=0;j<len;j++)
+        {
+            step=stepi(str,j);
+            if(!(is_in(step)))
+            {
+                set_int(step);mycount++;
+            }
+        }
+        fprintf(fp,"%s\n",str);
+    }
+}
+void testSHA1()
+{
+    const char *pass="a0bcd7f3";
+    unsigned sha1[5];
+    StrSHA1(pass,strlen(pass),sha1);
+    for(int i=0;i<5;i++)
+        printf("%08X",sha1[i]);
+    printf("\n");
+    char str[9];
+    str[8]=0;
+    getstr(1119999,str);
+    printf("%d\n",str2uint(str));
+}
+int main()
+{
+    testSHA1();
+    fp=fopen("chaina0.txt","wt");
+    genchain();
+    fclose(fp);
+    return 0;
 }
