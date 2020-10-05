@@ -27,7 +27,7 @@ kF/YWCX6qGQ0o1MwUTAdBgNVHQ4EFgQUAL5hW3RUzqvsiTzIc1gUHeK5uzQwHwYD \n\
 VR0jBBgwFoAUAL5hW3RUzqvsiTzIc1gUHeK5uzQwDwYDVR0TAQH/BAUwAwEB/zAK \n\
 BggqgRzPVQGDdQNHADBEAiAaZMmvE5zzXHx/TBgdUhjtpRH3Jpd6OZ+SOAfMtKxD \n\
 LAIgdKq/v2Jkmn37Y9U8FHYDfFqk5I0qlQOAmuvbVUi3yvM= \n\
-";
+-----END CERTIFICATE-----";
 
 char pkeyB[]="\
 -----BEGIN EC PARAMETERS----- \n\
@@ -37,10 +37,9 @@ BggqgRzPVQGCLQ== \n\
 MHcCAQEEINQhCKslrI3tKt6cK4Kxkor/LBvM8PSv699Xea7kTXTToAoGCCqBHM9V \n\
 AYItoUQDQgAEH7rLLiFASe3SWSsGbxFUtfPY//pXqLvgM6ROyiYhLkPxEulwrTe8 \n\
 kv5R8/NA7kSSvcsGIQ9EPWhr6HnCULpklw== \n\
------END EC PRIVATE KEY----- \n\
-";
+-----END EC PRIVATE KEY-----";
 
-char input[10005],ans[10005];
+char input[100005],ans[100005];
 
 // source: pkcs7-gen.cpp
 X509 *getX509(const char *cert)
@@ -58,50 +57,54 @@ EVP_PKEY *getpkey(const char *private_key)
  		return NULL;
  	return PEM_read_bio_PrivateKey(bio_pkey, NULL, NULL, NULL);
 }
+char oneline[1005];
 int main() {
     // 初始化
 	OpenSSL_add_all_algorithms();
+    // 读根证书
+    BIO *bca = BIO_new_mem_buf(CA,strlen(CA));
+    // printf("bca: %p\n",bca);
+    X509 *root = PEM_read_bio_X509(bca,NULL,NULL,NULL);
+    // printf("root: %p\n",root);
+    EVP_PKEY *pubKey = X509_get_pubkey(root);
+    // printf("pubkey: %p\n",pubKey);
     // 1.读入所有数据
     char c;int l=0; while(c=getchar(),c!=EOF) input[l++]=c;
     input[l]='\0';
+    // printf("%s\n",input);
     // 2.得到BIO类型
 	BIO *bin = BIO_new_mem_buf(input,l);
     if(bin == NULL) { puts("ERROR"); return 0; }
     // 3.得到PKCS7类型
 	PKCS7 *p7 = PEM_read_bio_PKCS7(bin,NULL,NULL,NULL);
     if(p7 == NULL) { puts("ERROR"); return 0; }
-    // 读根证书
-    BIO *bca = BIO_new_mem_buf(CA,strlen(CA));
-    printf("bca: %p\n",bca);
-    X509 *root = PEM_read_bio_X509(bca,NULL,NULL,NULL);
-    printf("root: %p\n",root);
-    EVP_PKEY *pubKey = X509_get_pubkey(root);
-    printf("pubkey: %p\n",pubKey);
     // 验签（输入的数据是否由证书发行）
 	STACK_OF(X509)* crts=p7->d.signed_and_enveloped->cert;
     int i;
 	FOR(i,0,sk_X509_num(crts)-1) {
 		X509* crt = sk_X509_value(crts, i);
-        printf("%d %p\n",i,crt);
+        // printf("%d %p\n",i,crt);
 		if (X509_verify(crt, pubKey) != 1) { puts("ERROR"); return 0; }
 	}
     // 4.解码
 	EVP_PKEY *pKey = getpkey(pkeyB);
     BIO *bout = PKCS7_dataDecode(p7,pKey,NULL,NULL);
     if(bout == NULL) { puts("ERROR"); return 0; }
-    // 验证解码
+    // 5.验证签名
 	STACK_OF(PKCS7_SIGNER_INFO)* sk = PKCS7_get_signer_info(p7);
-    FOR(i,0,sk_PKCS7_SIGNER_INFO_num(sk)-1) {
+    size_t sign_count=sk_PKCS7_SIGNER_INFO_num(sk);
+    FOR(i,0,sign_count-1) {
 		PKCS7_SIGNER_INFO *info = sk_PKCS7_SIGNER_INFO_value(sk,i);
+        // X509 *scrt=PKCS7_cert_from_signer_info(p7, info);
         X509 *scrt=X509_find_by_issuer_and_serial(
-            p7->d.signed_and_enveloped->cert, 
+            crts, 
             info->issuer_and_serial->issuer, 
             info->issuer_and_serial->serial
         );
-        if (X509_verify(scrt, pubKey) != 1) { puts("ERROR"); return 0; }
-        if (PKCS7_signatureVerify(bout,p7,info,scrt) != 1) { puts("ERROR"); return 0; }
+        if (X509_verify(scrt,pubKey) != 1) { puts("ERROR"); return 0; }
+        if (PKCS7_signatureVerify(bout,p7,info,scrt) != 1) { puts("ERROR 1"); return 0; }
     }
-    // 5.得到输出的缓冲区
+    // 6.得到输出的缓冲区
     int olen = BIO_read(bout,ans,10005);
     printf("%s\n",ans);
     return 0;
