@@ -57,17 +57,27 @@ EVP_PKEY *getpkey(const char *private_key)
  		return NULL;
  	return PEM_read_bio_PrivateKey(bio_pkey, NULL, NULL, NULL);
 }
-char oneline[1005];
+// source: https://blog.csdn.net/yyfzy/article/details/48343295
+bool can_sign(X509* pX509Cert) {
+	ASN1_BIT_STRING* lASN1UsageStr = 
+        (ASN1_BIT_STRING*)X509_get_ext_d2i(pX509Cert, NID_key_usage, NULL, NULL);
+	if (lASN1UsageStr){
+		unsigned short usage = lASN1UsageStr->data[0];
+		if (lASN1UsageStr->length > 1){
+			usage |= lASN1UsageStr->data[1] << 8;
+		}
+		if (usage & X509v3_KU_DIGITAL_SIGNATURE)
+			return true;
+	}
+	return false;
+}
 int main() {
     // 初始化
 	OpenSSL_add_all_algorithms();
     // 读根证书
     BIO *bca = BIO_new_mem_buf(CA,strlen(CA));
-    // printf("bca: %p\n",bca);
     X509 *root = PEM_read_bio_X509(bca,NULL,NULL,NULL);
-    // printf("root: %p\n",root);
     EVP_PKEY *pubKey = X509_get_pubkey(root);
-    // printf("pubkey: %p\n",pubKey);
     // 1.读入所有数据
     char c;int l=0; while(c=getchar(),c!=EOF) input[l++]=c;
     input[l]='\0';
@@ -89,11 +99,11 @@ int main() {
     // 4.解码
 	EVP_PKEY *pKey = getpkey(pkeyB);
     BIO *bout = PKCS7_dataDecode(p7,pKey,NULL,NULL);
+    int olen = BIO_read(bout,ans,100005);
     if(bout == NULL) { puts("ERROR"); return 0; }
     // 5.验证签名
 	STACK_OF(PKCS7_SIGNER_INFO)* sk = PKCS7_get_signer_info(p7);
-    size_t sign_count=sk_PKCS7_SIGNER_INFO_num(sk);
-    FOR(i,0,sign_count-1) {
+    FOR(i,0,sk_PKCS7_SIGNER_INFO_num(sk)-1) {
 		PKCS7_SIGNER_INFO *info = sk_PKCS7_SIGNER_INFO_value(sk,i);
         // X509 *scrt=PKCS7_cert_from_signer_info(p7, info);
         X509 *scrt=X509_find_by_issuer_and_serial(
@@ -101,11 +111,12 @@ int main() {
             info->issuer_and_serial->issuer, 
             info->issuer_and_serial->serial
         );
+        if (!can_sign(scrt)) { puts("ERROR"); return 0; }
         if (X509_verify(scrt,pubKey) != 1) { puts("ERROR"); return 0; }
-        if (PKCS7_signatureVerify(bout,p7,info,scrt) != 1) { puts("ERROR 1"); return 0; }
+        if (PKCS7_signatureVerify(bout,p7,info,scrt) != 1) { puts("ERROR"); return 0; }
     }
     // 6.得到输出的缓冲区
-    int olen = BIO_read(bout,ans,10005);
+    ans[olen] = '\0';
     printf("%s\n",ans);
     return 0;
 }
