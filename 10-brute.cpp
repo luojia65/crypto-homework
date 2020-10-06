@@ -45,16 +45,20 @@ int main() {
             val<<=4;
             val|=c>='a'?(c-'a'+10):(c-'0');
         }
-        vq[i]=q[i]=val;
+        vq[i]=val;
     }
     // debug_q(q);
     FOR(j,1,m) {
         FOR(i,0,7) p[i]=p0[j][i];
-        debug_p(p);
-        FOR(i,1,2) {
+        // debug_p(p);
+        // debug_p(p);
+        // debug_p(p);
+        FOR(i,1,1) {
             // debug_p(p);
             StrSHA1(p,8,q); // q=sha1(p)
-            // debug_q(q);
+            debug_q(q);
+            debug_q(q);
+            debug_q(q);
             // debug_q(vq);
             if(q_eq(q,vq)) {
                 printf("%s\n",p);
