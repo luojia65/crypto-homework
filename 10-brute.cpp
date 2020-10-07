@@ -1,6 +1,7 @@
-#include <iostream>
+// #include <iostream>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #define FOR(x,f,t) for(x=f;x<=t;++x)
 using namespace std;
 int StrSHA1(const char* str, long long length, unsigned sha1[5]);
@@ -47,25 +48,21 @@ int main() {
         }
         vq[i]=val;
     }
-    // debug_q(q);
+    // debug_q(vq);
     FOR(j,1,m) {
         FOR(i,0,7) p[i]=p0[j][i];
-        // debug_p(p);
-        // debug_p(p);
-        // debug_p(p);
-        FOR(i,1,1) {
-            // debug_p(p);
-            StrSHA1(p,8,q); // q=sha1(p)
-            debug_q(q);
-            debug_q(q);
-            debug_q(q);
-            // debug_q(vq);
+        StrSHA1(p,8,q); // q=sha1(p)
+    // debug_q(q);
+        for(i=0;i<100001;i++) {
             if(q_eq(q,vq)) {
                 printf("%s\n",p);
                 return 0;
             }
-            R(q,p,i%1000); // p=R(q)
+            R(q,p,i%100+1); // p=R(q)
+            StrSHA1(p,8,q); // q=sha1(p)
         }
+        // debug_p(p);
+        // debug_q(q);
     }
     puts("None");
     return 0;
