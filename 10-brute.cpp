@@ -151,10 +151,10 @@ void R(unsigned sha1[5],char str[8],int i,int ii)
     getstr((sha1[0]+sha1[1]*i)%2176782336,str);
     int s;
     if(ii>99995) {
-        printf("i=%d,q=",i);
-        FOR(s,0,4) printf("%08x",sha1[s]);
-        printf(",p=");
-        FOR(s,0,7) putchar(str[s]);
-        printf("\n");
+        // printf("i=%d,q=",i);
+        // FOR(s,0,4) printf("%08x",sha1[s]);
+        // printf(",p=");
+        // FOR(s,0,7) putchar(str[s]);
+        // printf("\n");
     }
 }
