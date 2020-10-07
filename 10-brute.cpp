@@ -7,7 +7,7 @@ using namespace std;
 int StrSHA1(const char* str, long long length, unsigned sha1[5]);
 void getstr(unsigned n,char str[8]);
 unsigned str2uint(char str[8]);
-void R(unsigned sha1[5],char str[8],int i);
+void R(unsigned sha1[5],char str[8],int i,int j);
 
 char p0[10005][10],pn[10005][810];
 char buf[45];
@@ -53,12 +53,15 @@ int main() {
         FOR(i,0,7) p[i]=p0[j][i];
         StrSHA1(p,8,q); // q=sha1(p)
     // debug_q(q);
-        for(i=0;i<100001;i++) {
+        for(i=0;i<=100000;i++) {
+            if(i>99995) {
+                printf("i=%d,",i); debug_p(p);debug_q(q);
+            }
             if(q_eq(q,vq)) {
                 printf("%s\n",p);
                 return 0;
             }
-            R(q,p,i%100+1); // p=R(q)
+            R(q,p,i%100+1,i); // p=R(q)
             StrSHA1(p,8,q); // q=sha1(p)
         }
         // debug_p(p);
@@ -143,7 +146,15 @@ unsigned str2uint(char str[8])
     }
     return res;
 }
-void R(unsigned sha1[5],char str[8],int i)
+void R(unsigned sha1[5],char str[8],int i,int ii)
 {
     getstr((sha1[0]+sha1[1]*i)%2176782336,str);
+    int s;
+    if(ii>99995) {
+        printf("i=%d,q=",i);
+        FOR(s,0,4) printf("%08x",sha1[s]);
+        printf(",p=");
+        FOR(s,0,7) putchar(str[s]);
+        printf("\n");
+    }
 }

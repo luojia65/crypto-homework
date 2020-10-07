@@ -2,23 +2,33 @@
 #include <stdio.h>
 #include <string.h>
 #define FOR(x,f,t) for(x=f;x<=t;++x)
+#define RFOR(x,f,t) for(x=f;x>=t;--x)
 using namespace std;
 int StrSHA1(const char* str, long long length, unsigned sha1[5]);
 void getstr(unsigned n,char str[8]);
 unsigned str2uint(char str[8]);
-void R(unsigned sha1[5],char str[8],int i);
+void R(unsigned sha1[5],char str[8],int i,int ii);
 
 char p0[10005][10],pn[10005][810];
 char buf[45];
 char p[10];
 unsigned int q[5]; 
 unsigned int vq[5]; 
-char pp[10];
 unsigned int qq[5]; 
 int q_eq(unsigned int a[5], unsigned int b[5]) {
     int i;
     FOR(i,0,4) if(a[i]!=b[i]) return 0; //ne
     return 1; //eq
+}
+void debug_q(unsigned int q[5]) {
+    int i;
+    FOR(i,0,4) printf("%08x",q[i]);
+    puts("");
+}
+void debug_p(char p[10]) {
+    int i;
+    FOR(i,0,7) putchar(p[i]);
+    puts("");
 }
 int main() {
     int i,j,k,m;
@@ -29,33 +39,32 @@ int main() {
     }
     scanf("%s",buf);
     FOR(i,0,4) {
-        vq[i]=q[i]=str2uint(buf+i*8);
+        int val=0;
+        FOR(j,0,7) {
+            char c=buf[i*8+j];
+            val<<=4;
+            val|=c>='a'?(c-'a'+10):(c-'0');
+        }
+        vq[i]=val;
     }
-    FOR(i,1,100001) {
-        R(q,p,i%1000); // p=R(q)
-        p[8]='\0';
-        // if(i<10)printf("%s\n",p);
-        // if(i<10){ 
-        //     FOR(k,0,4){
-        //         printf("%08X",q[k]);
-        //     }
-        //     puts("");
-        // }
+    // debug_q(q);
+    for(i=100000;i>=0;--i) {
+        FOR(j,0,4) q[j]=vq[j];
+        for(j=i;j<=100000;++j) {
+            // if(j>99995) {
+            //     printf("j=%d,",j); debug_p(p);debug_q(q);
+            // }
+            R(q,p,j%100+1,j); // p=R(q)
+            StrSHA1(p,8,q); // q=sha1(p)
+        }
+        if(i==99995)break;
         FOR(j,1,m) {
             // if(i<=10) printf("pn[j]=%s, p=%s\n",pn[j],p);
             if(strcmp(pn[j],p)==0) {
-                strcpy(pp,p0[j]);
-                FOR(k,1,i+1) {
-                    StrSHA1(pp,8,qq); // qq=sha1(pp)
-                    if(q_eq(qq,vq)) {
-                        printf("%s\n",pp);
-                        return 0;
-                    }
-                    R(qq,pp,i); // pp=R(qq)
-                }
+                printf("%s\n",p);
+                return 0;
             }
         }
-        StrSHA1(p,8,q); // q=sha1(p)
     }
     puts("None");
     return 0;
@@ -136,7 +145,21 @@ unsigned str2uint(char str[8])
     }
     return res;
 }
-void R(unsigned sha1[5],char str[8],int i)
+// void R(unsigned sha1[5],char str[8],int i)
+// {
+//     getstr((sha1[0]+sha1[1]*i)%2176782336,str);
+//     str[8]='\0';
+// }
+
+void R(unsigned sha1[5],char str[8],int i,int ii)
 {
     getstr((sha1[0]+sha1[1]*i)%2176782336,str);
+    int s;
+    if(ii>99995) {
+        printf("i=%d,q=",i);
+        FOR(s,0,4) printf("%08x",sha1[s]);
+        printf(",p=");
+        FOR(s,0,7) putchar(str[s]);
+        printf("\n");
+    }
 }
