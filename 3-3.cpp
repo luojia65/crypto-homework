@@ -169,11 +169,11 @@ int k1, k2, k3, k4, k5;
 int cnt[65536];
 int cns[65536];
 int s[65536], p[65536], r[65536], q[65536];
-int cipher[65536];
+int V[65536];
 
-#define AAA 439
-#define BBB 396
-#define CCC 777
+#define AAA 500
+#define BBB 600
+#define CCC 700
 
 int main() {
 	int i,j,k,ii,n;
@@ -189,7 +189,7 @@ int main() {
 		q[p[i]] = i;
 	}
 	FOR(ii,1,n) {
-		FOR(i,0,65535) cipher[i] = rd16();
+		FOR(i,0,65535) V[i] = rd16();
 		int find = 0;
 
 		// get first 8 bit
@@ -197,8 +197,8 @@ int main() {
 		while (k <= 80) {
 			x[k] = rand()%65536;
 			x1[k] = x[k]^0x0b00;
-			y[k] = cipher[x[k]];
-			y1_[k] = cipher[x1[k]];
+			y[k] = V[x[k]];
+			y1_[k] = V[x1[k]];
 			if(!((y[k]^y1_[k])&0xf0f0)) ++k;
 		}
 		MEMSET(cnt,0);
@@ -224,8 +224,8 @@ int main() {
 			while (k <= 240) {
 				x[k] = rand()%65536;
 				x1[k] = x[k]^0x0f00;
-				y[k] = cipher[x[k]];
-				y1_[k] = cipher[x1[k]];
+				y[k] = V[x[k]];
+				y1_[k] = V[x1[k]];
 				if(!((y[k]^y1_[k])&0x0f00)) ++k;
 			}
 			MEMSET(cns, 0);
@@ -256,9 +256,9 @@ int main() {
 					k3 = (key>>8) & 0xffff;
 					k2 = (key>>12) & 0xffff;
 					k1 = (key>>16) & 0xffff;
-					if((s[p[s[p[s[p[s[AAA^k1]]^k2]]^k3]]^k4] ^ k5) == cipher[AAA])
-					if((s[p[s[p[s[p[s[BBB^k1]]^k2]]^k3]]^k4] ^ k5) == cipher[BBB])
-						if((s[p[s[p[s[p[s[CCC^k1]]^k2]]^k3]]^k4] ^ k5) == cipher[CCC])
+					if((s[p[s[p[s[p[s[AAA^k1]]^k2]]^k3]]^k4] ^ k5) == V[AAA])
+					if((s[p[s[p[s[p[s[BBB^k1]]^k2]]^k3]]^k4] ^ k5) == V[BBB])
+						if((s[p[s[p[s[p[s[CCC^k1]]^k2]]^k3]]^k4] ^ k5) == V[CCC])
 						{find = 1; break;}
 				}
 				if (find) break;
