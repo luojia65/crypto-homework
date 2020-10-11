@@ -1,8 +1,11 @@
-#define _CRT_SECURE_NO_WARNINGS
-#include<stdio.h>
-#include<string.h>
-#include<math.h>
-
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h> 
+// #include <vector>
+// #include <algorithm>
+#define FOR(x,f,t) for(x=f;x<=t;++x)
+#define RFOR(x,f,t) for(x=f;x>=t;--x)
+#define MEMSET(a,b) memset(a,b,sizeof(a))
 
 int p[8000][4] = { 0 }, c[8000][4];
 int p_bin[8000][16] = { 0 };
@@ -10,6 +13,72 @@ int j = 0, i = 0;
 int key[5][5] = { 0 };
 int store1[20] = { 14,4,13,1,2,15,11,8,3,10,6,12,5,9,0,7 };
 
+inline void print32(int a) {
+	int i;
+	FOR(i,1,8) {
+		int c=(a>>(4*(8-i)))&0xF;
+		if(c>=0&&c<=9) putchar('0'+c);
+		else if (c>=10&&c<=15) putchar('a'+c-10);
+	}
+}
+int SBOX[]={
+	0xE, 0x4, 0xD, 0x1, 0x2, 0xF, 0xB, 0x8,
+	0x3, 0xA, 0x6, 0xC, 0x5, 0x9, 0x0, 0x7
+};
+int PBOX[]={ 
+	1,5,9,13,	2,6,10,14,
+	3,7,11,15,	4,8,12,16
+};
+// E4D1_2FB8_3A6C_5907
+inline int pis(int y) {
+	int A[]={
+		0xE, 0x4, 0xD, 0x1, 0x2, 0xF, 0xB, 0x8,
+		0x3, 0xA, 0x6, 0xC, 0x5, 0x9, 0x0, 0x7
+	};
+	return A[y];
+}
+inline int sbox16(int u) {
+	int v=0,j;
+	FOR(j,1,4) {
+		int vri = (u>>(4*(j-1)))&0xF;
+		v|=SBOX[vri]<<(4*(j-1));
+	}
+	return v;
+}
+// E348_1CAF_7D96_B205
+inline int pis2(int y) {
+	int A[]={
+		0xE, 0x3, 0x4, 0x8, 0x1, 0xC, 0xA, 0xF,
+		0x7, 0xD, 0x9, 0x6, 0xB, 0x2, 0x0, 0x5
+	};
+	return A[y];
+} 
+inline int pip(int y) {
+	int idx[]={0, 
+		1,5,9,13,	2,6,10,14,
+		3,7,11,15,	4,8,12,16
+	},i,ans=0;
+	FOR(i,1,16) {
+		int bit=(y>>(i-1))&0x1;
+		ans|=bit<<(idx[i]-1);
+	}
+	return ans;
+}
+inline int spn(int x,int k) {
+	int r,w=x,u,j;
+	FOR(r,1,3) {
+		int kr=(k>>(4*(5-r)))&0xFFFF;//16bit
+		u=w^kr;
+		int v=sbox16(u);
+		w=pip(v);
+	}
+	int kr=(k>>4)&0xFFFF;
+	u=w^kr; 
+	int v=sbox16(u);
+	kr=k&0xFFFF;
+	int y=v^kr;
+	return y;
+} 
 
 int encrypt(int* p, int* K)
 {
