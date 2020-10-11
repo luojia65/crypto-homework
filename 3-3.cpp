@@ -51,6 +51,7 @@
 #include <cstring>
 #define FOR(x,f,t) for(x=f;x<=t;++x)
 #define RFOR(x,f,t) for(x=f;x>=t;--x)
+#define MEMSET(a,b) memset(a,b,sizeof(a))
 
 inline int rd16() {
     int x=0;char ch=getchar();
@@ -200,7 +201,7 @@ int main() {
 			y1_[k] = cipher[x1[k]];
 			if(!((y[k]^y1_[k])&0xf0f0)) ++k;
 		}
-		memset(cnt, 0, 256 * sizeof(int));
+		MEMSET(cnt,0);
 		FOR(i,1,80) {
 			for (l = 0; l <= 0xff; ++l) {
 				u2 = r[(l>>4)^((y[i]&0x0f00)>>8)] ^ r[(l>>4)^((y1_[i]&0x0f00)>>8)];
@@ -227,7 +228,7 @@ int main() {
 				y1_[k] = cipher[x1[k]];
 				if(!((y[k]^y1_[k])&0x0f00)) ++k;
 			}
-			memset(cns, 0, 256 * sizeof(int));
+			MEMSET(cns, 0);
 			FOR(i,1,240) {
 				FOR(l,0,255) {
 					u1 = r[(l>>4)^((y[i]&0xf000)>>12)] ^ r[(l>>4)^((y1_[i]&0xf000)>>12)];
