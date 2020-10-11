@@ -84,8 +84,6 @@ inline int spn(int x,int k) {
 	int y=v^kr;
 	return y;
 } 
-int V[100005];
-int cnt[20][20];
 
 /*
 第一行输入n，接下来n行每行4*65536个字符，表示0x0000至0xffff对应的密文，每个密文之间空格隔开。
@@ -93,6 +91,8 @@ int cnt[20][20];
 
 输出n行，每行为对应的密钥。
 */
+int V[100005];
+int cnt[20][20];
 #define MAX 100
 int x[MAX],x8[MAX],y[MAX],y8[MAX];
 int main() {
@@ -103,14 +103,14 @@ int main() {
         FOR(j,0,65535) V[j]=rd16();
         MEMSET(cnt,0);
         k=1;
-        while (k <= 75) {
+        while (k <= 80) {
             x[k] = rand() % 65536;
             x8[k] = x[k] ^ 0x0b00;
             y[k] = V[x[k]];
             y8[k] = V[x8[k]];
             if(((y[k]^y8[k])&0xf0f0) != 0) k+=1;
         }
-		FOR(j,1,75) {
+		FOR(j,1,80) {
             // if y&0xF==y8&0xF && y&0xF00==y8&0xF00 
             FOR(k,0,15) {
                 FOR(l,0,15) {
@@ -118,13 +118,28 @@ int main() {
                     int v44=k^((y[j]>>3)&0xF);
                     int u42=pis2(v42);
                     int u44=pis2(v44);
-                    int v42_8=k^((y_8[j]>>1)&0xF);
-                    int v44_8=k^((y_8[j]>>3)&0xF);
+                    int v42_8=k^((y8[j]>>1)&0xF);
+                    int v44_8=k^((y8[j]>>3)&0xF);
                     int u42_8=pis2(v42_8);
                     int u44_8=pis2(v44_8);
+                    int u42_p=u42^u42_8;
+                    int u44_p=u44^u44_8;
+                    if (u42_p==0b0110 && u44_p==0b0110) {
+                        cnt[k][l]+=1;
+                    }
                 }
             }
 		}
+        int mx=1; int mxk,mxl;
+        FOR(k,0,15) {
+            FOR(l,0,15) {
+                if (cnt[k][l]>mx) {
+                    mx=cnt[k][l];
+                    mxk=k, mxl=l;
+                }
+            }
+        }
+        printf("%x %x\n",mxk,mxl);
     }
     return 0;
 }
