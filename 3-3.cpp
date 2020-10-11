@@ -1,3 +1,51 @@
+#pragma GCC optimize(3)
+#pragma GCC optimize("Ofast")
+#pragma GCC optimize("inline")
+#pragma GCC optimize("-fgcse")
+#pragma GCC optimize("-fgcse-lm")
+#pragma GCC optimize("-fipa-sra")
+#pragma GCC optimize("-ftree-pre")
+#pragma GCC optimize("-ftree-vrp")
+#pragma GCC optimize("-fpeephole2")
+#pragma GCC optimize("-ffast-math")
+#pragma GCC optimize("-fsched-spec")
+#pragma GCC optimize("unroll-loops")
+#pragma GCC optimize("-falign-jumps")
+#pragma GCC optimize("-falign-loops")
+#pragma GCC optimize("-falign-labels")
+#pragma GCC optimize("-fdevirtualize")
+#pragma GCC optimize("-fcaller-saves")
+#pragma GCC optimize("-fcrossjumping")
+#pragma GCC optimize("-fthread-jumps")
+#pragma GCC optimize("-funroll-loops")
+#pragma GCC optimize("-fwhole-program")
+#pragma GCC optimize("-freorder-blocks")
+#pragma GCC optimize("-fschedule-insns")
+#pragma GCC optimize("inline-functions")
+#pragma GCC optimize("-ftree-tail-merge")
+#pragma GCC optimize("-fschedule-insns2")
+#pragma GCC optimize("-fstrict-aliasing")
+#pragma GCC optimize("-fstrict-overflow")
+#pragma GCC optimize("-falign-functions")
+#pragma GCC optimize("-fcse-skip-blocks")
+#pragma GCC optimize("-fcse-follow-jumps")
+#pragma GCC optimize("-fsched-interblock")
+#pragma GCC optimize("-fpartial-inlining")
+#pragma GCC optimize("no-stack-protector")
+#pragma GCC optimize("-freorder-functions")
+#pragma GCC optimize("-findirect-inlining")
+#pragma GCC optimize("-fhoist-adjacent-loads")
+#pragma GCC optimize("-frerun-cse-after-loop")
+#pragma GCC optimize("inline-small-functions")
+#pragma GCC optimize("-finline-small-functions")
+#pragma GCC optimize("-ftree-switch-conversion")
+#pragma GCC optimize("-foptimize-sibling-calls")
+#pragma GCC optimize("-fexpensive-optimizations")
+#pragma GCC optimize("-funsafe-loop-optimizations")
+#pragma GCC optimize("inline-functions-called-once")
+#pragma GCC optimize("-fdelete-null-pointer-checks")
+#pragma GCC optimize(-fsanitize=address)
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -15,6 +63,20 @@ inline int rd16() {
         ch=getchar();
     }
     return x;
+	// int i;//x=0;char ch=getchar();
+	// char buf[5];
+	// FOR(i,0,3) {
+	// 	buf[i] = getchar();
+	// 	if (buf[i] >= '0' && buf[i] <= '9') {
+	// 		buf[i] -= '0';
+	// 		i++;
+	// 	} else { // if (buf[i] >= 'a' && buf[i] <= 'f') {
+	// 		buf[i] += 10 - 'a';
+	// 		i++;
+	// 	}
+	// }
+	// getchar();
+	// return (buf[0] << 12) | (buf[1] << 8) | (buf[2] << 4) | buf[3];
 }
 
 inline void print16(int a) {
@@ -114,8 +176,8 @@ int cipher[65536];
 
 int main() {
 	int i,j,k,ii,n;
-	scanf("%dii",&n);
-	getchar();
+	scanf("%d",&n);
+	// getchar();
 	FOR(i,0,65535) {
 		s[i] = (pi_s[i>>12]<<12) | (pi_s[(i>>8)&0xf]<<8) | (pi_s[(i>>4)&0xf]<<4) | (pi_s[i&0xf]);
 		r[s[i]] = i;
@@ -130,8 +192,8 @@ int main() {
 		int find = 0;
 
 		// get first 8 bit
-		int k=0;
-		while (k < 80) {
+		int k=1;
+		while (k <= 80) {
 			x[k] = rand()%65536;
 			x1[k] = x[k]^0x0b00;
 			y[k] = cipher[x[k]];
@@ -139,7 +201,7 @@ int main() {
 			if(!((y[k]^y1_[k])&0xf0f0)) ++k;
 		}
 		memset(cnt, 0, 256 * sizeof(int));
-		FOR(i,0,80-1) {
+		FOR(i,1,80) {
 			for (l = 0; l <= 0xff; ++l) {
 				u2 = r[(l>>4)^((y[i]&0x0f00)>>8)] ^ r[(l>>4)^((y1_[i]&0x0f00)>>8)];
 				u4 = r[(l&0x0f)^(y[i]&0x000f)] ^ r[(l&0x0f)^(y1_[i]&0x000f)];
@@ -157,8 +219,8 @@ int main() {
 				}
 			}
 			cnt[maxkey24] = 0;
-			int k=0;
-			while (k < 240) {
+			int k=1;
+			while (k <= 240) {
 				x[k] = rand()%65536;
 				x1[k] = x[k]^0x0f00;
 				y[k] = cipher[x[k]];
@@ -166,7 +228,7 @@ int main() {
 				if(!((y[k]^y1_[k])&0x0f00)) ++k;
 			}
 			memset(cns, 0, 256 * sizeof(int));
-			FOR(i,0,240-1) {
+			FOR(i,1,240) {
 				FOR(l,0,255) {
 					u1 = r[(l>>4)^((y[i]&0xf000)>>12)] ^ r[(l>>4)^((y1_[i]&0xf000)>>12)];
 					u3 = r[(l&0x0f)^((y[i]&0x00f0)>>4)] ^ r[(l&0x0f)^((y1_[i]&0x00f0)>>4)];
